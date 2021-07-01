@@ -1,0 +1,7 @@
+t <form>
+t <text>
+t <id>time</id>
+c p 1 <value>%d</value>
+t </text>
+t </form>
+.
