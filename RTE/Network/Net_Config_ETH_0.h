@@ -45,7 +45,7 @@
 //     <s.15>Subnet mask
 //     <i>Local Subnet mask in text representation
 //     <i>Default: "255.255.255.0"
-#define ETH0_IP4_MASK           "255.255.255.0"
+#define ETH0_IP4_MASK           "255.255.254.0"
 
 //     <s.15>Default Gateway
 //     <i>IP Address of Default Gateway in text representation
@@ -55,12 +55,12 @@
 //     <s.15>Primary DNS Server
 //     <i>IP Address of Primary DNS Server in text representation
 //     <i>Default: "8.8.8.8"
-#define ETH0_IP4_PRIMARY_DNS    "8.8.8.8"
+#define ETH0_IP4_PRIMARY_DNS    "194.25.2.129"
 
 //     <s.15>Secondary DNS Server
 //     <i>IP Address of Secondary DNS Server in text representation
 //     <i>Default: "8.8.4.4"
-#define ETH0_IP4_SECONDARY_DNS  "8.8.4.4"
+#define ETH0_IP4_SECONDARY_DNS  "194.25.2.130"
 
 //     <e>IP Fragmentation
 //     <i>This option enables fragmentation of outgoing IP datagrams,
@@ -151,7 +151,7 @@
 
 //   <e>IPv6
 //   <i>Enable IPv6 Protocol for Network Interface
-#define ETH0_IP6_ENABLE         1
+#define ETH0_IP6_ENABLE         0
 
 //     <s.40>IPv6 Address
 //     <i>Static IPv6 Address in text representation
@@ -207,7 +207,7 @@
 //     <e>Dynamic Host Configuration
 //     <i>When this option is enabled, local IPv6 address is
 //     <i>automatically configured.
-#define ETH0_DHCP6_ENABLE       0
+#define ETH0_DHCP6_ENABLE       1
 
 //       <o>DHCPv6 Client Mode  <0=>Stateless Mode <1=>Statefull Mode
 //       <i>Stateless DHCPv6 Client uses router advertisements
