@@ -39,8 +39,16 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "rl_net.h"                     /* Network definitions                */
+#include <stdio.h>
 
 
+#ifdef _RTE_
+#include "RTE_Components.h"             // Component selection
+#endif
+#ifdef RTE_CMSIS_RTOS2                  // when RTE component CMSIS RTOS2 is used
+#include "cmsis_os2.h"                  // ::CMSIS:RTOS2
+#endif
 
 #ifdef RTE_CMSIS_RTOS2_RTX5
 /**
@@ -77,13 +85,11 @@ uint32_t HAL_GetTick (void) {
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-RTC_HandleTypeDef hrtc;
-
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void Error_Handler(void);
-static void MX_RTC_Init(void);
-
+static void MX_GPIO_Init(void);
+/* Private functions ---------------------------------------------------------*/
 /**
   * @brief  Main program
   * @param  None
@@ -109,15 +115,14 @@ int main(void)
 
   /* Add your application code here
      */
-	MX_RTC_Init();
-	
-
+	MX_GPIO_Init();
 #ifdef RTE_CMSIS_RTOS2
   /* Initialize CMSIS-RTOS2 */
   osKernelInitialize ();
 
-	osThreadNew(app_main, NULL, &app_main_attr); 
-
+  /* Create thread functions that start executing, 
+  Example: osThreadNew(app_main, NULL, NULL); */
+	 osThreadNew(app_main, NULL, &app_main_attr);
   /* Start thread execution */
   osKernelStart();
 #endif
@@ -125,7 +130,7 @@ int main(void)
   /* Infinite loop */
   while (1)
   {
-		osThreadYield ();
+		    osThreadYield ();
   }
 }
 
@@ -160,17 +165,17 @@ static void SystemClock_Config(void)
   /* The voltage scaling allows optimizing the power consumption when the device is 
      clocked below the maximum system frequency, to update the voltage scaling value 
      regarding system frequency refer to product datasheet.  */
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
 
   /* Enable HSE Oscillator and activate PLL with HSE as source */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 25;
-  RCC_OscInitStruct.PLL.PLLN = 336;
+  RCC_OscInitStruct.PLL.PLLM = 4;
+  RCC_OscInitStruct.PLL.PLLN = 96;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 7;
+  RCC_OscInitStruct.PLL.PLLQ = 4;
   if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     /* Initialization Error */
@@ -183,57 +188,24 @@ static void SystemClock_Config(void)
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;  
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;  
-  if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV4;  
+  if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
   {
     /* Initialization Error */
     Error_Handler();
   }
-
-  /* STM32F405x/407x/415x/417x Revision Z devices: prefetch is supported */
-  if (HAL_GetREVID() == 0x1001)
-  {
-    /* Enable the Flash prefetch */
-    __HAL_FLASH_PREFETCH_BUFFER_ENABLE();
-  }
 }
-
-
-
-
-
-
-static void MX_RTC_Init(void)
+/**
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_GPIO_Init(void)
 {
-  /* USER CODE BEGIN RTC_Init 0 */
 
-  /* USER CODE END RTC_Init 0 */
-
-  /* USER CODE BEGIN RTC_Init 1 */
-
-  /* USER CODE END RTC_Init 1 */
-  /** Initialize RTC Only
-  */
-  hrtc.Instance = RTC;
-  hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
-  hrtc.Init.AsynchPrediv = 127;
-  hrtc.Init.SynchPrediv = 255;
-  hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
-  hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-  hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
-  if (HAL_RTC_Init(&hrtc) != HAL_OK)
-  {
-    //Error_Handler();
-  }
-  /** Enable Calibrartion
-  */
-  if (HAL_RTCEx_SetCalibrationOutPut(&hrtc, RTC_CALIBOUTPUT_1HZ) != HAL_OK)
-  {
-    //Error_Handler();
-  }
-  /* USER CODE BEGIN RTC_Init 2 */
-
-  /* USER CODE END RTC_Init 2 */
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOH_CLK_ENABLE();
 
 }
 /**

@@ -1,11 +1,9 @@
-#ifndef __RTC_H
-#define __RTC_H
-
-#include "cmsis_os2.h" 
+#include <stdio.h>
 #include "stm32f4xx_hal.h"
+#include "cmsis_os2.h" 
+#include <time.h>
 
-
-extern RTC_HandleTypeDef hrtc;
+void MX_RTC_Init(void);
 void resetHoraFecha0(void);
 void setHora(uint8_t seg, uint8_t min, uint8_t ho);
 void setFecha(uint8_t dia, uint8_t mes,  uint16_t anio); 
@@ -22,4 +20,3 @@ extern osThreadId_t TID_Rtc_led;
 extern osThreadId_t TID_Rtc_setTime;
 extern osThreadId_t TID_Rtc_setDate;
 uint32_t getTotalSeconds(void);
-#endif

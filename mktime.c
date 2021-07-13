@@ -8,6 +8,7 @@ unix_time_in_seconds( uint8_t sec, uint8_t min, uint8_t hrs, uint8_t day, uint8_
   //  Add up the seconds from all prev years, up until this year.
   uint8_t years = 0;
   uint8_t leap_years = 0;
+	year = 2000+year;
   for( uint16_t y_k = EPOCH_YEAR; y_k<year; y_k++ )
   {
     if( IS_LEAP_YEAR( y_k ) )

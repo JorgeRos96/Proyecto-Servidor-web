@@ -11,23 +11,23 @@
 #include <string.h>
 #include "cmsis_os2.h"                  // ::CMSIS:RTOS2
 #include "rl_net.h"                     // Keil.MDK-Pro::Network:CORE
-
+#include "RTC.h"
 //#include "Board_LED.h"                  // ::Board Support:LED
 
 #if      defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
 #pragma  clang diagnostic push
 #pragma  clang diagnostic ignored "-Wformat-nonliteral"
 #endif
-extern char time_text[2][20+1];
+
 // http_server.c
 /*extern uint16_t AD_in (uint32_t ch);
 extern uint8_t  get_button (void);
 
 extern bool LEDrun;
 extern char lcd_text[2][20+1];
-
 extern osThreadId_t TID_Display;
 */
+extern char time_text[2][20+1];
 extern osThreadId_t TID_Rtc_setTime;
 extern osThreadId_t TID_Rtc_setDate;
 // Local variables.
@@ -174,6 +174,16 @@ void netCGI_ProcessData (uint8_t code, const char *data, uint32_t len) {
       //  strcpy (lcd_text[1], var+5);
        // osThreadFlagsSet (TID_Display, 0x01);
       }
+			else if (strncmp (var, "tset=", 5) == 0) {
+  
+        strcpy (time_text[0], var+5);
+        osThreadFlagsSet (TID_Rtc_setTime, 0x20);
+      }
+      else if (strncmp (var, "dset=", 5) == 0) {
+    
+        strcpy (time_text[1], var+5);
+				osThreadFlagsSet (TID_Rtc_setDate, 0x20);
+      }
     }
   } while (data);
  // LED_SetOut (P2);
@@ -190,7 +200,8 @@ uint32_t netCGI_Script (const char *env, char *buf, uint32_t buflen, uint32_t *p
   static uint32_t adv;
   netIF_Option opt = netIF_OptionMAC_Address;
   int16_t      typ = 0;
-
+	char time[8];
+	char date[10];
   switch (env[0]) {
     // Analyze a 'c' script line starting position 2
     case 'a' :
@@ -383,7 +394,6 @@ uint32_t netCGI_Script (const char *env, char *buf, uint32_t buflen, uint32_t *p
 				//adv=0x04;
 					len = (uint32_t)sprintf (buf, &env[4], adv);
           break;
-
       }
       break;
 		case 'p':
@@ -392,10 +402,9 @@ uint32_t netCGI_Script (const char *env, char *buf, uint32_t buflen, uint32_t *p
          adv=getTotalSeconds(); 
 					len = (uint32_t)sprintf (buf, &env[4], adv);
           break;
-
       }
-      break;
-			case 'n':
+			break;
+		case 'n':
       switch (env[2]) {
         case '1':
 					len = (uint32_t)sprintf (buf, &env[4], time_text[0]);
