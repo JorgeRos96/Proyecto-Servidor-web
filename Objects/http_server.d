@@ -1,7 +1,6 @@
 .\objects\http_server.o: HTTP_Server.c
 .\objects\http_server.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-.\objects\http_server.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\time.h
-.\objects\http_server.o: main.h
+.\objects\http_server.o: RTC.h
 .\objects\http_server.o: C:\Users\User\AppData\Local\Arm\Packs\Keil\STM32F4xx_DFP\2.15.0\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h
 .\objects\http_server.o: .\RTE\Device\STM32F429ZITx\stm32f4xx_hal_conf.h
 .\objects\http_server.o: .\RTE\_Target_1\RTE_Components.h
@@ -30,8 +29,9 @@
 .\objects\http_server.o: C:\Users\User\AppData\Local\Arm\Packs\Keil\STM32F4xx_DFP\2.15.0\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rtc.h
 .\objects\http_server.o: C:\Users\User\AppData\Local\Arm\Packs\Keil\STM32F4xx_DFP\2.15.0\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rtc_ex.h
 .\objects\http_server.o: C:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\RTOS2\Include\cmsis_os2.h
-.\objects\http_server.o: RTC.h
-.\objects\http_server.o: SNTP.h
+.\objects\http_server.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\time.h
+.\objects\http_server.o: main.h
 .\objects\http_server.o: C:\Users\User\AppData\Local\Arm\Packs\Keil\MDK-Middleware\7.12.0\Network\Include\rl_net.h
 .\objects\http_server.o: C:\Users\User\AppData\Local\Arm\Packs\Keil\MDK-Middleware\7.12.0\Network\Include\rl_net_ds.h
 .\objects\http_server.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\http_server.o: SNTP.h

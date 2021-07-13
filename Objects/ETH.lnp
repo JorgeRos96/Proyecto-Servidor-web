@@ -24,8 +24,8 @@
 ".\objects\stm32f4xx_hal_rtc_ex.o"
 ".\objects\startup_stm32f429xx.o"
 ".\objects\system_stm32f4xx.o"
-"..\..\..\..\AppData\Local\Arm\Packs\Keil\MDK-Middleware\7.12.0\Network\Lib\ARM\Net4_CM3_L.lib"
 ".\objects\net_config.o"
+"..\..\..\..\AppData\Local\Arm\Packs\Keil\MDK-Middleware\7.12.0\Network\Lib\ARM\Net4_CM3_L.lib"
 --strict --scatter ".\Objects\ETH.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
