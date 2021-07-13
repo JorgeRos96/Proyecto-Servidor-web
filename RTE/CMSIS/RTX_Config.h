@@ -93,21 +93,21 @@
 //   <e>Object specific Memory allocation
 //   <i> Enables object specific memory allocation.
 #ifndef OS_THREAD_OBJ_MEM
-#define OS_THREAD_OBJ_MEM           0
+#define OS_THREAD_OBJ_MEM           1
 #endif
  
 //     <o>Number of user Threads <1-1000>
 //     <i> Defines maximum number of user threads that can be active at the same time.
 //     <i> Applies to user threads with system provided memory for control blocks.
 #ifndef OS_THREAD_NUM
-#define OS_THREAD_NUM               1
+#define OS_THREAD_NUM               11
 #endif
  
 //     <o>Number of user Threads with default Stack size <0-1000>
 //     <i> Defines maximum number of user threads with default stack size.
 //     <i> Applies to user threads with zero stack size specified.
 #ifndef OS_THREAD_DEF_STACK_NUM
-#define OS_THREAD_DEF_STACK_NUM     0
+#define OS_THREAD_DEF_STACK_NUM     11
 #endif
  
 //     <o>Total Stack size [bytes] for user Threads with user-provided Stack size <0-1073741824:8>
@@ -172,7 +172,7 @@
 //   <e>Object specific Memory allocation
 //   <i> Enables object specific memory allocation.
 #ifndef OS_TIMER_OBJ_MEM
-#define OS_TIMER_OBJ_MEM            0
+#define OS_TIMER_OBJ_MEM            1
 #endif
  
 //     <o>Number of Timer objects <1-1000>
@@ -343,7 +343,7 @@
 //   <e>Global Initialization
 //   <i> Initialize Event Recorder during 'osKernelInitialize'.
 #ifndef OS_EVR_INIT
-#define OS_EVR_INIT                 0
+#define OS_EVR_INIT                 1
 #endif
  
 //     <q>Start recording
@@ -397,7 +397,7 @@
 //         <o.3>Detailed operation events
 //       </h>
 #ifndef OS_EVR_THREAD_LEVEL 
-#define OS_EVR_THREAD_LEVEL         0x05U
+#define OS_EVR_THREAD_LEVEL         0x01U
 #endif
  
 //       <h>Generic Wait
