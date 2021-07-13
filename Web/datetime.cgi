@@ -28,7 +28,7 @@ t <h2 align="center"><br>Time and Date</h2>
 t <p><font size="2">This page allows you to monitor time and date.
 t  Periodic screen update is based on <b>xml</b> technology.
 t Nota, en la itroduccion manual de fecha y hora, meter hora y
-t  fecha en formato XX:XX:XX y XX/XX/XXXX respectivamente, de no hacerlo,
+t  fecha en formato XX:XX:XX y XX/XX/XXXX respectivamente y con un año superior al 2000, de no hacerlo,
 t  no se asegura la correcta actualización de los datos.</font></p>
 t <form onLoad="HacerAlgo()" action="datetime.cgi" method="post" name="datetime">
 t <input type="hidden" value="datetime" name="pg">
