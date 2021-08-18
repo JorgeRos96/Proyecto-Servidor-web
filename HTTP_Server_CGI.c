@@ -1,37 +1,37 @@
-/*------------------------------------------------------------------------------
- * MDK Middleware - Component ::Network:Service
- * Copyright (c) 2004-2018 ARM Germany GmbH. All rights reserved.
- *------------------------------------------------------------------------------
- * Name:    HTTP_Server_CGI.c
- * Purpose: HTTP Server CGI Module
- * Rev.:    V6.0.0
- *----------------------------------------------------------------------------*/
-
+/**
+  ******************************************************************************
+  * @file    Templates/Src/HTTP_Server.c 
+  * @author  MCD Application Team
+  * @brief   Fichero donde se realiza la gestión de los hilos. En ellos se realiza
+	*					 la obtención de la hora del servidor SNTP. Esto se realiza con un 
+	*					 Timer que obtiene la hora cada 15s. Tambien se establece la hora en 
+	*					 el RTC cuando se establece en la página web.
+	*
+  * @note    modified by ARM
+  *          The modifications allow to use this file as User Code Template
+  *          within the Device Family Pack.
+  ******************************************************************************
+  *
+  ******************************************************************************
+  */
+	
 #include <stdio.h>
 #include <string.h>
 #include "cmsis_os2.h"                  // ::CMSIS:RTOS2
 #include "rl_net.h"                     // Keil.MDK-Pro::Network:CORE
 #include "RTC.h"
-//#include "Board_LED.h"                  // ::Board Support:LED
 
 #if      defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
 #pragma  clang diagnostic push
 #pragma  clang diagnostic ignored "-Wformat-nonliteral"
 #endif
 
-// http_server.c
-/*extern uint16_t AD_in (uint32_t ch);
-extern uint8_t  get_button (void);
-
-extern bool LEDrun;
-extern char lcd_text[2][20+1];
-extern osThreadId_t TID_Display;
-*/
+/*External variables*/
 extern char time_text[2][20+1];
 extern osThreadId_t TID_Rtc_setTime;
 extern osThreadId_t TID_Rtc_setDate;
-// Local variables.
-//static uint8_t P2;
+
+/* Local variables.*/
 static uint8_t ip_addr[NET_ADDR_IP6_LEN];
 static char    ip_string[40];
 
@@ -42,17 +42,23 @@ typedef struct {
 } MY_BUF;
 #define MYBUF(p)        ((MY_BUF *)p)
 
-// Process query string received by GET request.
+/**
+  * @brief Función que procesa la consulta recibida por la petición GET. 
+	* @param arg
+  * @retval None
+  */
 void netCGI_ProcessQuery (const char *qstr) {
+	
   netIF_Option opt = netIF_OptionMAC_Address;
   int16_t      typ = 0;
   char var[40];
 
   do {
+		
     // Loop through all the parameters
     qstr = netCGI_GetEnvVar (qstr, var, sizeof (var));
+		
     // Check return string, 'qstr' now points to the next parameter
-
     switch (var[0]) {
       case 'i': // Local IP address
         if (var[1] == '4') { opt = netIF_OptionIP4_Address;       }
@@ -97,25 +103,29 @@ void netCGI_ProcessQuery (const char *qstr) {
 }
 
 // Process data received by POST request.
-// Type code: - 0 = www-url-encoded form data.
-//            - 1 = filename for file upload (null-terminated string).
-//            - 2 = file upload raw data.
-//            - 3 = end of file upload (file close requested).
-//            - 4 = any XML encoded POST data (single or last stream).
-//            - 5 = the same as 4, but with more XML data to follow.
+// 
+/**
+  * @brief Función que procesa la consulta recibida por la solicitud POST.
+	*	 			 Type code: - 0 = www-url-encoded form data.
+	*										- 1 = filename for file upload (null-terminated string).
+	*										- 2 = file upload raw data.
+	*										- 3 = end of file upload (file close requested).
+	*										- 4 = any XML encoded POST data (single or last stream).
+	*										- 5 = the same as 4, but with more XML data to follow.
+	* @param arg
+  * @retval None
+  */
 void netCGI_ProcessData (uint8_t code, const char *data, uint32_t len) {
-  char var[40],passw[12];
+  
+	char var[40],passw[12];
 
   if (code != 0) {
     // Ignore all other codes
     return;
   }
 
- // P2 = 0;
- // LEDrun = true;
   if (len == 0) {
     // No data or all items (radio, checkbox) are off
-  //  LED_SetOut (P2);
     return;
   }
   passw[0] = 1;
@@ -124,34 +134,7 @@ void netCGI_ProcessData (uint8_t code, const char *data, uint32_t len) {
     data = netCGI_GetEnvVar (data, var, sizeof (var));
     if (var[0] != 0) {
       // First character is non-null, string exists
-      if (strcmp (var, "led0=on") == 0) {
-     //   P2 |= 0x01;
-      }
-      else if (strcmp (var, "led1=on") == 0) {
-      //  P2 |= 0x02;
-      }
-      else if (strcmp (var, "led2=on") == 0) {
-      //  P2 |= 0x04;
-      }
-      else if (strcmp (var, "led3=on") == 0) {
-       // P2 |= 0x08;
-      }
-      else if (strcmp (var, "led4=on") == 0) {
-       // P2 |= 0x10;
-      }
-      else if (strcmp (var, "led5=on") == 0) {
-      //  P2 |= 0x20;
-      }
-      else if (strcmp (var, "led6=on") == 0) {
-       // P2 |= 0x40;
-      }
-      else if (strcmp (var, "led7=on") == 0) {
-       // P2 |= 0x80;
-      }
-      else if (strcmp (var, "ctrl=Browser") == 0) {
-       // LEDrun = false;
-      }
-      else if ((strncmp (var, "pw0=", 4) == 0) ||
+      if ((strncmp (var, "pw0=", 4) == 0) ||
                (strncmp (var, "pw2=", 4) == 0)) {
         // Change password, retyped password
         if (netHTTPs_LoginActive()) {
@@ -164,44 +147,46 @@ void netCGI_ProcessData (uint8_t code, const char *data, uint32_t len) {
           }
         }
       }
-      else if (strncmp (var, "lcd1=", 5) == 0) {
-        // LCD Module line 1 text
-     //   strcpy (lcd_text[0], var+5);
-      //  osThreadFlagsSet (TID_Display, 0x01);
-      }
-      else if (strncmp (var, "lcd2=", 5) == 0) {
-        // LCD Module line 2 text
-      //  strcpy (lcd_text[1], var+5);
-       // osThreadFlagsSet (TID_Display, 0x01);
-      }
+			/*Se recibe el valor de la hora estableido en la página web y manda señal para establecerlo en RTC*/				 
 			else if (strncmp (var, "tset=", 5) == 0) {
-  
         strcpy (time_text[0], var+5);
         osThreadFlagsSet (TID_Rtc_setTime, 0x20);
       }
+			/*Se recibe el valor de la fecha estableido en la página web y manda señal para establecerlo en RTC*/				 
       else if (strncmp (var, "dset=", 5) == 0) {
-    
         strcpy (time_text[1], var+5);
 				osThreadFlagsSet (TID_Rtc_setDate, 0x20);
       }
     }
   } while (data);
- // LED_SetOut (P2);
 }
 
 // Generate dynamic web data from a script line.
+/**
+  * @brief Función que procesa la información del script CGI cuyas lineas comienzan por el comando c. Dentro de la variable
+	*				 env que se recibe por parámetro se encuentra la misma cadena que se define en el script y por el que se identifica
+	*				 la acción a realizar. 
+	* @param arg
+	* @param *buf: El argumento buff es el puntero al buffer de salida donde la función escribe la respuesta http
+	*	@param buflen: Indica el tamaño del buffer de salida en bytes
+	*	@param *pcgi: Puntero a la variable que no se modifica y se puede utilizar para almacenar parametros durante varias llamadas
+	*				 a la función.
+  * @retval Devuelve el número de bytes escritos en el buffer de salida
+  */
 uint32_t netCGI_Script (const char *env, char *buf, uint32_t buflen, uint32_t *pcgi) {
+	
   int32_t socket;
   netTCP_State state;
   NET_ADDR r_client;
   const char *lang;
   uint32_t len = 0U;
   uint8_t id;
-  static uint32_t adv;
+  static uint64_t adv;
   netIF_Option opt = netIF_OptionMAC_Address;
   int16_t      typ = 0;
 	char time[8];
 	char date[10];
+	
   switch (env[0]) {
     // Analyze a 'c' script line starting position 2
     case 'a' :
@@ -254,23 +239,6 @@ uint32_t netCGI_Script (const char *env, char *buf, uint32_t buflen, uint32_t *p
       netIF_GetOption (NET_IF_CLASS_ETH, opt, ip_addr, sizeof(ip_addr));
       netIP_ntoa (typ, ip_addr, ip_string, sizeof(ip_string));
       len = (uint32_t)sprintf (buf, &env[5], ip_string);
-      break;
-
-    case 'b':
-      // LED control from 'led.cgi'
-   /*   if (env[2] == 'c') {
-        // Select Control
-        len = (uint32_t)sprintf (buf, &env[4], LEDrun ?     ""     : "selected",
-                                               LEDrun ? "selected" :    ""     );
-        break;
-      }*/
-      // LED CheckBoxes
-      id = env[2] - '0';
-      if (id > 7) {
-        id = 0;
-      }
-      id = (uint8_t)(1U << id);
-     // len = (uint32_t)sprintf (buf, &env[4], (P2 & id) ? "checked" : "");
       break;
 
     case 'c':
@@ -346,69 +314,32 @@ uint32_t netCGI_Script (const char *env, char *buf, uint32_t buflen, uint32_t *p
       }
       len = (uint32_t)sprintf (buf, &env[2], lang, netHTTPs_GetLanguage());
       break;
-
-    case 'f':
-      // LCD Module control from 'lcd.cgi'
-      switch (env[2]) {
-        case '1':
-      //    len = (uint32_t)sprintf (buf, &env[4], lcd_text[0]);
-          break;
-        case '2':
-       //   len = (uint32_t)sprintf (buf, &env[4], lcd_text[1]);
-          break;
-      }
-      break;
-
-    case 'g':
-      // AD Input from 'ad.cgi'
-      switch (env[2]) {
-        case '1':
-       //   adv = AD_in (0);
-       //   len = (uint32_t)sprintf (buf, &env[4], adv);
-          break;
-        case '2':
-      //    len = (uint32_t)sprintf (buf, &env[4], (double)((float)adv*3.3f)/4096);
-          break;
-        case '3':
-      //    adv = (adv * 100) / 4096;
-       //   len = (uint32_t)sprintf (buf, &env[4], adv);
-          break;
-      }
-      break;
-
-    case 'x':
-      // AD Input from 'ad.cgx'
-    //  adv = AD_in (0);
-    //  len = (uint32_t)sprintf (buf, &env[1], adv);
-      break;
-
-    case 'y':
-      // Button state from 'button.cgx'
-     // len = (uint32_t)sprintf (buf, "<checkbox><id>button%c</id><on>%s</on></checkbox>",
-         //                      env[1], (get_button () & (1 << (env[1]-'0'))) ? "true" : "false");
-      break;
+  
 		case 'z':
       switch (env[2]) {
+				/*Se escribe en el buffer de salida el número total de segundos para actualizar el EPOCH Time*/
         case '1':
          adv=getTotalSeconds();
-				//adv=0x04;
-					len = (uint32_t)sprintf (buf, &env[4], adv);
+					len = (uint64_t)sprintf (buf, &env[4], adv);
           break;
       }
       break;
 		case 'p':
       switch (env[2]) {
+				/*Se escribe en el buffer de salida el número total de segundos*/
         case '1':
          adv=getTotalSeconds(); 
-					len = (uint32_t)sprintf (buf, &env[4], adv);
+					len = (uint64_t)sprintf (buf, &env[4], adv);
           break;
       }
 			break;
 		case 'n':
       switch (env[2]) {
+				/*Escribe en el buffer de salida la hora*/
         case '1':
 					len = (uint32_t)sprintf (buf, &env[4], time_text[0]);
           break;
+				/*Escribe en el buffer de salida la fecha*/
 				case '2':
 					len = (uint32_t)sprintf (buf, &env[4], time_text[1]);
           break;

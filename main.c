@@ -2,37 +2,35 @@
   ******************************************************************************
   * @file    Templates/Src/main.c 
   * @author  MCD Application Team
-  * @brief   STM32F4xx HAL API Template project 
-  *
+  * @brief   Servidor web a traves de la conexión Ethernet del microcontrolador.
+	*					 Se utiliza plantilla del ejemplo para microcontroladores STM32F4 y 
+	*					 se añade la posibilidad de visualizar la hora y fecha. 
+	*					
+	*					 Se configura la conexión a traves del CMSIS Driver utilizando el 
+	*					 driver para LAN8742A. Se configura servidor Http donde se programan 
+	*					 las páginas a traves de CGI.
+	*					 En el fichero RTE_Device.h se activan los pines que se van a utilizar
+	*					 del Ethernet, configurando el RMII y el managment data interface. Se 
+	*					 dejan los pines por defecto a excepción del ETH_RMII_TXD0 en el que
+	*					 hay que seleccionar el pin PG13 y el ETH_RMII_TX_EN  donde se selecciona
+	*					 el pin PG11.
+	*					 Despues en el fichero Net_Config_ETH_0.h se configura la IPV4 y se 
+	*					 deshabilita el DHCP ya que la IP la vamos a fijar nosotros. Se 
+	*					 configura la IP: 192.168.1.100 y se puede ver que la MAC configurada es
+	*					 1E-30-6C-A2-45-5E.
+	*
+	*					 Para realizar la gestión de la hora y la fecha se va a utilizar el RTC
+	*					 para llevar la hora de manera local, y mediante el servidor SNTP se va
+	*					 a actualizar la hora cada cierto tiempo.
+	*
+	*  				 Para el uso del Ethernet es necesario que trabaje a una frecuencia
+	*					 mayor de 25 MHz. En este proyecto se ha configurado el reloj del 
+  *					 sistema a 180 MHz utilizando el PLL y el HSI como fuente de reloj.
+	*
   * @note    modified by ARM
   *          The modifications allow to use this file as User Code Template
   *          within the Device Family Pack.
   ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
-  *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
   */
@@ -41,6 +39,7 @@
 #include "main.h"
 #include "rl_net.h"                     /* Network definitions                */
 #include <stdio.h>
+#include "Watchdog.h"
 
 
 #ifdef _RTE_
@@ -73,22 +72,10 @@ uint32_t HAL_GetTick (void) {
 
 #endif
 
-/** @addtogroup STM32F4xx_HAL_Examples
-  * @{
-  */
-
-/** @addtogroup Templates
-  * @{
-  */
-
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
-static void Error_Handler(void);
-static void MX_GPIO_Init(void);
+static void Error_Handler(int fallo);
+
 /* Private functions ---------------------------------------------------------*/
 /**
   * @brief  Main program
@@ -97,7 +84,10 @@ static void MX_GPIO_Init(void);
   */
 int main(void)
 {
-
+	/*Inicialización del IWDG*/
+	if (init_Watchdog() != 0)
+			Error_Handler(2);
+	
   /* STM32F4xx HAL library initialization:
        - Configure the Flash prefetch, Flash preread and Buffer caches
        - Systick timer is configured by default as source of time base, but user 
@@ -107,21 +97,19 @@ int main(void)
              handled in milliseconds basis.
        - Low Level Initialization
      */
-  HAL_Init();
+  if (HAL_Init() != HAL_OK)
+		Error_Handler(0);
 
   /* Configure the system clock to 168 MHz */
   SystemClock_Config();
   SystemCoreClockUpdate();
 
-  /* Add your application code here
-     */
-	MX_GPIO_Init();
+
 #ifdef RTE_CMSIS_RTOS2
   /* Initialize CMSIS-RTOS2 */
   osKernelInitialize ();
 
-  /* Create thread functions that start executing, 
-  Example: osThreadNew(app_main, NULL, NULL); */
+  /* Create thread functions that start executing, */
 	 osThreadNew(app_main, NULL, &app_main_attr);
   /* Start thread execution */
   osKernelStart();
@@ -137,118 +125,101 @@ int main(void)
 /**
   * @brief  System Clock Configuration
   *         The system Clock is configured as follow : 
-  *            System Clock source            = PLL (HSE)
-  *            SYSCLK(Hz)                     = 168000000
-  *            HCLK(Hz)                       = 168000000
+  *            System Clock source            = PLL (HSI)
+  *            SYSCLK(Hz)                     = 180000000
+  *            HCLK(Hz)                       = 180000000
   *            AHB Prescaler                  = 1
   *            APB1 Prescaler                 = 4
   *            APB2 Prescaler                 = 2
-  *            HSE Frequency(Hz)              = 8000000
-  *            PLL_M                          = 25
-  *            PLL_N                          = 336
+  *            HSI Frequency(Hz)              = 16000000
+  *            PLL_M                          = 8
+  *            PLL_N                          = 180
   *            PLL_P                          = 2
-  *            PLL_Q                          = 7
+  *            PLL_Q                          = 4
   *            VDD(V)                         = 3.3
   *            Main regulator output voltage  = Scale1 mode
   *            Flash Latency(WS)              = 5
   * @param  None
   * @retval None
   */
-static void SystemClock_Config(void)
+void SystemClock_Config(void)
 {
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_OscInitTypeDef RCC_OscInitStruct;
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /* Enable Power Control clock */
+  /** Configure the main internal regulator output voltage
+  */
   __HAL_RCC_PWR_CLK_ENABLE();
-
-  /* The voltage scaling allows optimizing the power consumption when the device is 
-     clocked below the maximum system frequency, to update the voltage scaling value 
-     regarding system frequency refer to product datasheet.  */
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
-
-  /* Enable HSE Oscillator and activate PLL with HSE as source */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+	
+  /** Se configura el HSI como fuente de reloj del PLL y se configuran
+	* 	los parametros del PLL para ajusta la frecuencia a 180 MHz con una
+	* 	frecuencia del HSI de 16 MHZ (por defecto).
+	* 	SYSCLK =[(16MHz(frecuencia HSI)/8(PLLM))*180 (PLLN)]/2 (PLLP) = 180 MHz
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 4;
-  RCC_OscInitStruct.PLL.PLLN = 96;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 180;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
-  if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
-    /* Initialization Error */
-    Error_Handler();
+    Error_Handler(1);
   }
-
-  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 
-     clocks dividers */
-  RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+  /** Se activa el modo de Over Drive para poder alcanzar los 180 MHz
+	* 	como frecuencia del sistema
+  */
+  if (HAL_PWREx_EnableOverDrive() != HAL_OK)
+  {
+    Error_Handler(1);
+  }
+  /** Se selecciona el PLL como fuente de reloj del sistema y se configuran los parametros
+	*		para configurar el HCLK, PCLK1 y PCLK2. La frecuencia máxima del HCLK es 180 MHZ, la 
+	*		frecuencia máxima del PCLK1 es de 45 MHZ y la frecuencia máxima del PCLK2 es de 90 MHz
+	*		HCLK = SYSCK/AHB = 180 MHz / 1 = 180 MHz
+	*		PCLK1 = HCLK/APB1 = 180 MHz / 4 = 45 MHZ
+	*		PCLK2 = HCLK/APB2 = 180 MHz / 2 = 90 MHZ
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;  
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV4;  
-  if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
   {
-    /* Initialization Error */
-    Error_Handler();
+    Error_Handler(1);
   }
 }
-/**
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_GPIO_Init(void)
-{
 
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOH_CLK_ENABLE();
-
-}
 /**
   * @brief  This function is executed in case of error occurrence.
   * @param  None
   * @retval None
   */
-static void Error_Handler(void)
-{
-  /* User may add here some code to deal with this error */
-  while(1)
+static void Error_Handler(int fallo){
+	
+	char buf [100];
+	
+	if(fallo == 0)
+		/* Mensaje si se ha producido un error en la inicializacón de la librería HAL*/
+		printf(buf,"\r Se ha producido un error al inicializar la librería HAL\n");
+	else if (fallo == 1)
+		/* Mensaje si se ha producido un error en la inicializacón del reloj del sistema*/
+		printf(buf,"\r Se ha producido un error al inicializar el reloj del sistema\n");
+	else if (fallo == 2)
+		/* Mensaje si se ha producido un error en la inicialización del Watchdog*/
+		printf(buf,"\r Se ha producido un error al inicializar el Watchdog\n");
+ 
+	while(1)
   {
   }
 }
 
-#ifdef  USE_FULL_ASSERT
-
-/**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
-void assert_failed(uint8_t* file, uint32_t line)
-{ 
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-
-  /* Infinite loop */
-  while (1)
-  {
-  }
-}
-
-#endif
-
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-  */ 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
