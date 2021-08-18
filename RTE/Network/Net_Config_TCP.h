@@ -28,7 +28,7 @@
 //   <i>If data frame not acknowledged within this time frame,
 //   <i>TCP module will try to resend the data again.
 //   <i>Default: 4
-#define TCP_RETRY_TOUT          10
+#define TCP_RETRY_TOUT          2
 
 //   <o>Default Connect Timeout in seconds <1-65535>
 //   <i>If no TCP data frame has been exchanged during this time,
