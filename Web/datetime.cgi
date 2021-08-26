@@ -7,7 +7,7 @@ t function plotADGraph() {
 t var d= new Date();
 t d.setTime((document.getElementById("time").value-3600)*1000);
 t var año=d.getFullYear();
-t var mes=d.getMonth();
+t var mes=d.getMonth()+1;
 t document.getElementById("time1").value=""+d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
 t document.getElementById("date").value =""+d.getDate()+"/"+mes+"/"+año;
 t
