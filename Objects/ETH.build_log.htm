@@ -22,7 +22,7 @@ Dialog DLL:      TCM.DLL V1.36.2.0
  
 <h2>Project:</h2>
 C:\Users\User\Documents\PFG\Proyectos finales\Servidor Web v3\ETH.uvprojx
-Project File Date:  08/18/2021
+Project File Date:  08/26/2021
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
@@ -57,74 +57,36 @@ FCARM FILE CONVERTER V2.57
 Completed 21 File(s), Ratio 87%
 compiling Web.c...
 compiling mktime.c...
-mktime.c(37): warning:  #1-D: last line of file ends without a newline
-  }
-mktime.c: 1 warning, 0 errors
-compiling stm32f4xx_it.c...
+compiling stm32f4xx_hal_msp.c...
 compiling RTC.c...
 RTC.h(22): warning:  #1-D: last line of file ends without a newline
   uint64_t getTotalSeconds(void);
-RTC.c(160): warning:  #177-D: variable "sTime"  was declared but never referenced
-    RTC_TimeTypeDef sTime = {0};
-RTC.c(161): warning:  #177-D: variable "sDate"  was declared but never referenced
-    RTC_DateTypeDef sDate = {0};
-RTC.c(162): warning:  #177-D: variable "sAlarm"  was declared but never referenced
-    RTC_AlarmTypeDef sAlarm = {0};
-RTC.c: 4 warnings, 0 errors
-compiling stm32f4xx_hal_msp.c...
-compiling main.c...
-Watchdog.h(3): warning:  #1295-D: Deprecated declaration init_Watchdog - give arg types
-  int init_Watchdog ();
-Watchdog.h(4): warning:  #1295-D: Deprecated declaration reset_Watchdog - give arg types
-  void reset_Watchdog ();
-main.c: 2 warnings, 0 errors
+RTC.c: 1 warning, 0 errors
+compiling Watchdog.c...
 compiling HTTP_Server.c...
 RTC.h(22): warning:  #1-D: last line of file ends without a newline
   uint64_t getTotalSeconds(void);
-Watchdog.h(3): warning:  #1295-D: Deprecated declaration init_Watchdog - give arg types
-  int init_Watchdog ();
-Watchdog.h(4): warning:  #1295-D: Deprecated declaration reset_Watchdog - give arg types
-  void reset_Watchdog ();
-HTTP_Server.c(140): warning:  #177-D: variable "exec1"  was declared but never referenced
-  	uint32_t exec1=1U;
-HTTP_Server.c(141): warning:  #177-D: variable "time"  was declared but never referenced
-  	uint32_t time;
-HTTP_Server.c(198): warning:  #1-D: last line of file ends without a newline
-  }
-HTTP_Server.c(51): warning:  #177-D: function "Timer_SNTP_callback"  was declared but never referenced
-  static void Timer_SNTP_callback(void *args);
-HTTP_Server.c: 7 warnings, 0 errors
+HTTP_Server.c(124): warning:  #223-D: function "strlen" declared implicitly
+  			int numwords = (strlen(dat)/4)+((strlen(dat)%4)!=0);
+HTTP_Server.c: 2 warnings, 0 errors
+compiling main.c...
+compiling stm32f4xx_it.c...
 compiling HTTP_Server_CGI.c...
 RTC.h(22): warning:  #1-D: last line of file ends without a newline
   uint64_t getTotalSeconds(void);
-HTTP_Server_CGI.c(183): warning:  #177-D: variable "id"  was declared but never referenced
-    uint8_t id;
-HTTP_Server_CGI.c(187): warning:  #177-D: variable "time"  was declared but never referenced
-  	char time[8];
-HTTP_Server_CGI.c(188): warning:  #177-D: variable "date"  was declared but never referenced
-  	char date[10];
-HTTP_Server_CGI.c: 4 warnings, 0 errors
-compiling Watchdog.c...
-Watchdog.h(3): warning:  #1295-D: Deprecated declaration init_Watchdog - give arg types
-  int init_Watchdog ();
-Watchdog.h(4): warning:  #1295-D: Deprecated declaration reset_Watchdog - give arg types
-  void reset_Watchdog ();
-Watchdog.c(60): warning:  #1-D: last line of file ends without a newline
-  }
-Watchdog.c: 3 warnings, 0 errors
-compiling PHY_LAN8742A.c...
-compiling RTX_Config.c...
+HTTP_Server_CGI.c: 1 warning, 0 errors
 compiling rtx_lib.c...
 C:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\RTOS2\RTX\Source\rtx_lib.c(430): warning:  #1215-D: #warning directive: "Event Recorder cannot be initialized (Event Recorder component is not selected)!"
   #warning "Event Recorder cannot be initialized (Event Recorder component is not selected)!"
 C:\Users\User\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\RTOS2\RTX\Source\rtx_lib.c: 1 warning, 0 errors
-compiling stm32f4xx_hal_pwr.c...
-compiling stm32f4xx_hal_pwr_ex.c...
-compiling stm32f4xx_hal_gpio.c...
-compiling stm32f4xx_hal_cortex.c...
-compiling stm32f4xx_hal_rcc.c...
+compiling PHY_LAN8742A.c...
+compiling RTX_Config.c...
+compiling Flash.c...
 compiling stm32f4xx_hal.c...
-assembling startup_stm32f429xx.s...
+compiling stm32f4xx_hal_gpio.c...
+compiling stm32f4xx_hal_flash.c...
+compiling stm32f4xx_hal_cortex.c...
+compiling stm32f4xx_hal_flash_ex.c...
 compiling EMAC_STM32F4xx.c...
 C:\Users\User\AppData\Local\Arm\Packs\Keil\STM32F4xx_DFP\2.15.0\CMSIS\Driver\EMAC_STM32F4xx.c(794): warning:  #3108-D: attribute "__packed__" does not apply here
       __UNALIGNED_UINT32_WRITE(&dst[0], __UNALIGNED_UINT32_READ(&frame[0]));
@@ -155,15 +117,19 @@ C:\Users\User\AppData\Local\Arm\Packs\Keil\STM32F4xx_DFP\2.15.0\CMSIS\Driver\EMA
 C:\Users\User\AppData\Local\Arm\Packs\Keil\STM32F4xx_DFP\2.15.0\CMSIS\Driver\EMAC_STM32F4xx.c(880): warning:  #3108-D: attribute "__packed__" does not apply here
       __UNALIGNED_UINT16_WRITE(&frame[0], __UNALIGNED_UINT16_READ(&src[0]));
 C:\Users\User\AppData\Local\Arm\Packs\Keil\STM32F4xx_DFP\2.15.0\CMSIS\Driver\EMAC_STM32F4xx.c: 14 warnings, 0 errors
-compiling Net_Config.c...
-compiling system_stm32f4xx.c...
 compiling stm32f4xx_hal_iwdg.c...
+compiling stm32f4xx_hal_pwr.c...
+compiling stm32f4xx_hal_pwr_ex.c...
+assembling startup_stm32f429xx.s...
 compiling stm32f4xx_hal_rtc.c...
-compiling stm32f4xx_hal_rtc_ex.c...
+compiling Net_Config.c...
 compiling stm32f4xx_hal_rcc_ex.c...
+compiling stm32f4xx_hal_rcc.c...
+compiling system_stm32f4xx.c...
+compiling stm32f4xx_hal_rtc_ex.c...
 linking...
-Program Size: Code=50892 RO-data=31996 RW-data=72788 ZI-data=26124  
-".\Objects\ETH.axf" - 0 Error(s), 36 Warning(s).
+Program Size: Code=52400 RO-data=31960 RW-data=72788 ZI-data=26140  
+".\Objects\ETH.axf" - 0 Error(s), 19 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -189,7 +155,6 @@ Package Vendor: Keil
                 Middleware for Keil MDK-Professional and MDK-Plus
    * Component: CORE Variant: IPv4 Release Version: 7.14.0
    * Component: ETH Version: 7.14.0
-   * Component: SNTP Client Version: 7.14.0
    * Component: Web Server Compact Variant: HTTP Version: 7.14.0
    * Component: TCP Version: 7.14.0
    * Component: UDP Version: 7.14.0
@@ -203,6 +168,7 @@ Package Vendor: Keil
    * Component: Classic Version: 1.7.9
    * Component: Common Version: 1.7.9
    * Component: Cortex Version: 1.7.9
+   * Component: Flash Version: 1.7.9
    * Component: GPIO Version: 1.7.9
    * Component: IWDG Version: 1.7.9
    * Component: PWR Version: 1.7.9
@@ -239,31 +205,28 @@ Package Vendor: Keil
    * Component: ARM::CMSIS:CORE:5.4.0
 
    * Component: ARM::CMSIS:RTOS2:Keil RTX5:Library:5.5.2
-      Include file:  CMSIS\RTOS2\RTX\Include\rtx_os.h
+      Source file:   CMSIS\RTOS2\RTX\Template\Events.c
+      Source file:   CMSIS\RTOS2\RTX\Template\Mutex.c
+      Source file:   CMSIS\RTOS2\RTX\Template\MemPool.c
       Include file:  CMSIS\RTOS2\RTX\Config\RTX_Config.h
+      Source file:   CMSIS\RTOS2\RTX\Template\MsgQueue.c
+      Include file:  CMSIS\RTOS2\RTX\Include\rtx_os.h
       Source file:   CMSIS\RTOS2\RTX\Config\RTX_Config.c
       Source file:   CMSIS\RTOS2\RTX\Template\main.c
-      Source file:   CMSIS\RTOS2\RTX\Template\Events.c
-      Source file:   CMSIS\RTOS2\RTX\Template\MemPool.c
-      Source file:   CMSIS\RTOS2\RTX\Template\MsgQueue.c
-      Source file:   CMSIS\RTOS2\RTX\Template\Mutex.c
+      Source file:   CMSIS\RTOS2\RTX\Source\rtx_lib.c
+      Source file:   CMSIS\RTOS2\RTX\Template\Semaphore.c
       Source file:   CMSIS\RTOS2\RTX\Template\svc_user.c
       Source file:   CMSIS\RTOS2\RTX\Template\Timer.c
-      Source file:   CMSIS\RTOS2\RTX\Template\Semaphore.c
-      Source file:   CMSIS\RTOS2\RTX\Source\rtx_lib.c
       Library file:  CMSIS\RTOS2\RTX\Library\ARM\RTX_CM4F.lib
       Source file:   CMSIS\RTOS2\RTX\Template\Thread.c
 
    * Component: Keil.MDK-Pro::Network:CORE:IPv4 Release:7.14.0
+      Source file:   Network\Config\Net_Config.c
       Library file:  Network\Lib\ARM\Net4_CM3_L.lib
       Include file:  Network\Include\rl_net.h
-      Source file:   Network\Config\Net_Config.c
 
    * Component: Keil.MDK-Pro::Network:Interface:ETH:7.14.0
       Include file:  Network\Config\Net_Config_ETH.h
-
-   * Component: Keil.MDK-Pro::Network:Service:SNTP Client:7.14.0
-      Include file:  Network\Config\Net_Config_SNTP_Client.h
 
    * Component: Keil.MDK-Pro::Network:Service:Web Server Compact:HTTP:7.14.0
       Include file:  Network\Config\Net_Config_HTTP_Server.h
@@ -274,8 +237,8 @@ Package Vendor: Keil
 
    * Component: Keil.MDK-Pro::Network:Socket:TCP:7.14.0
       Source file:   Network\Template\TCP_Socket_Client.c
-      Include file:  Network\Config\Net_Config_TCP.h
       Source file:   Network\Template\TCP_Socket_Server.c
+      Include file:  Network\Config\Net_Config_TCP.h
 
    * Component: Keil.MDK-Pro::Network:Socket:UDP:7.14.0
       Include file:  Network\Config\Net_Config_UDP.h
@@ -288,14 +251,14 @@ Package Vendor: Keil
       Source file:   ETH\PHY_LAN8742A.c
 
    * Component: Keil::Device:STM32Cube Framework:Classic:1.7.9
+      Source file:   MDK\Templates\Src\stm32f4xx_it.c
       Include file:  CMSIS\Driver\Config\RTE_Device.h
+      Source file:   MDK\Templates\Src\main.c
+      Source file:   MDK\Templates_LL\Src\main.c
+      Include file:  MDK\Templates\Inc\main.h
       Source file:   MDK\Templates\Src\stm32f4xx_hal_msp.c
       Include file:  MDK\Templates\Inc\stm32f4xx_hal_conf.h
-      Source file:   MDK\Templates\Src\stm32f4xx_it.c
-      Include file:  MDK\Templates\Inc\main.h
       Include file:  MDK\Templates\Inc\stm32f4xx_it.h
-      Source file:   MDK\Templates_LL\Src\main.c
-      Source file:   MDK\Templates\Src\main.c
       Include file:  MDK\Templates_LL\Inc\main.h
 
    * Component: Keil::Device:STM32Cube HAL:Common:1.7.9
@@ -305,6 +268,10 @@ Package Vendor: Keil
    * Component: Keil::Device:STM32Cube HAL:Cortex:1.7.9
       Source file:   Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_cortex.c
 
+   * Component: Keil::Device:STM32Cube HAL:Flash:1.7.9
+      Source file:   Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash_ex.c
+      Source file:   Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_flash.c
+
    * Component: Keil::Device:STM32Cube HAL:GPIO:1.7.9
       Source file:   Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_gpio.c
 
@@ -312,24 +279,24 @@ Package Vendor: Keil
       Source file:   Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_iwdg.c
 
    * Component: Keil::Device:STM32Cube HAL:PWR:1.7.9
-      Source file:   Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pwr_ex.c
       Source file:   Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pwr.c
+      Source file:   Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_pwr_ex.c
 
    * Component: Keil::Device:STM32Cube HAL:RCC:1.7.9
-      Source file:   Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc_ex.c
       Source file:   Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc.c
+      Source file:   Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rcc_ex.c
 
    * Component: Keil::Device:STM32Cube HAL:RTC:1.7.9
       Source file:   Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rtc.c
       Source file:   Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rtc_ex.c
 
    * Component: Keil::Device:Startup:2.6.3
-      Source file:   Drivers\CMSIS\Device\ST\STM32F4xx\Source\Templates\system_stm32f4xx.c
       Source file:   MDK\Device\Source\ARM\STM32F4xx_OTP.s
-      Source file:   Drivers\CMSIS\Device\ST\STM32F4xx\Source\Templates\arm\startup_stm32f429xx.s
-      Source file:   MDK\Device\Source\ARM\STM32F42xxx_43xxx_OPT.s
       Include file:  Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
-Build Time Elapsed:  00:00:35
+      Source file:   MDK\Device\Source\ARM\STM32F42xxx_43xxx_OPT.s
+      Source file:   Drivers\CMSIS\Device\ST\STM32F4xx\Source\Templates\arm\startup_stm32f429xx.s
+      Source file:   Drivers\CMSIS\Device\ST\STM32F4xx\Source\Templates\system_stm32f4xx.c
+Build Time Elapsed:  00:00:37
 </pre>
 </body>
 </html>
