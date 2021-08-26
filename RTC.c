@@ -138,7 +138,7 @@ uint16_t getAnio(void){
 	ye = sDate.Year;
   return ye;
 }
-//devuelves segundos pasados desde 1 de enero de 1970
+
 /**
 	* @brief Función que obtiene el valor de los segundos pasados desde el 1 de Enero de 1970
 	* @param 
@@ -156,13 +156,7 @@ uint64_t getTotalSeconds(void){
   */
 void MX_RTC_Init(void)
 {
-
-  RTC_TimeTypeDef sTime = {0};
-  RTC_DateTypeDef sDate = {0};
-  RTC_AlarmTypeDef sAlarm = {0};
-
-  /** Initialize RTC Only
-  */
+  /** Initialize RTC Only*/
   hrtc.Instance = RTC;
   hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
   hrtc.Init.AsynchPrediv = 127;
@@ -174,8 +168,7 @@ void MX_RTC_Init(void)
   {
     printf("Fallo en la inicializacion");
   }
-  /** Enable Calibrartion
-  */
+  /** Enable Calibrartion*/
   if (HAL_RTCEx_SetCalibrationOutPut(&hrtc, RTC_CALIBOUTPUT_1HZ) != HAL_OK)
   {
         printf("Fallo en la calibracion");

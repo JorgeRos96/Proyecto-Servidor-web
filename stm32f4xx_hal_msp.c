@@ -55,12 +55,6 @@
   * @{
   */
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
 
 /** @defgroup HAL_MSP_Private_Functions
   * @{
@@ -146,16 +140,5 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* hrtc)
   __HAL_RCC_PWR_CLK_DISABLE();
 
 }
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

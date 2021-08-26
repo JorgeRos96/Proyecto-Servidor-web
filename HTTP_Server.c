@@ -2,10 +2,9 @@
   ******************************************************************************
   * @file    Templates/Src/HTTP_Server.c 
   * @author  MCD Application Team
-  * @brief   Fichero donde se realiza la gestión de los hilos. En ellos se realiza
-	*					 la obtención de la hora del servidor SNTP. Esto se realiza con un 
-	*					 Timer que obtiene la hora cada 15s. Tambien se establece la hora en 
-	*					 el RTC cuando se establece en la página web.
+  * @brief   Fichero donde se realiza la gestión de los hilos. En ellos se 
+	*					 establece la fecha y hora en el RTC cuando se actualiza en la página
+	*					 web.
 	*
   * @note    modified by ARM
   *          The modifications allow to use this file as User Code Template
@@ -22,6 +21,7 @@
 #include "rl_net.h"                     // Keil.MDK-Pro::Network:CORE
 #include "stm32f4xx_hal.h"              // Keil::Device:STM32Cube HAL:Common
 #include "Watchdog.h"
+#include "Flash.h"
 
 
 // Main stack size must be multiple of 8 Bytes
@@ -34,8 +34,6 @@ const osThreadAttr_t app_main_attr = {
 extern char time_text[2][20+1];
 char time_text[2][20+1] = { "XX:XX:XX",
                            "XX/XX/XXXX" };
-
- extern void     netDHCP_Notify (uint32_t if_num, uint8_t option, const uint8_t *val, uint32_t len);
 													 
 /* Thread IDs */
 osThreadId_t TID_Rtc_setTime;
@@ -48,21 +46,8 @@ __NO_RETURN static void Rtc_setTime  (void *arg);
 __NO_RETURN static void Rtc_setDate  (void *arg);
 
 
-static void Timer_SNTP_callback(void *args);
 int getNumber(char caracter);
 
-
-/* IP address change notification */
-void netDHCP_Notify (uint32_t if_num, uint8_t option, const uint8_t *val, uint32_t len) {
-
-  (void)if_num;
-  (void)val;
-  (void)len;
-
-  if (option == NET_DHCP_OPTION_IP_ADDRESS) {
-    /* IP address change, trigger LCD update */
-  }
-}
 
 /**
   * @brief Hilo de gestión de la hora donde se espera a la actualzación de la hora desde la página web y
@@ -86,8 +71,14 @@ static __NO_RETURN void Rtc_setTime (void *arg) {
 			sprintf (date, "%s",time_text[0]);
 			date[2] = date[5] = '\0';
 			hor=10*getNumber(date[0])+getNumber(date[1]);
+			if(hor >24 || hor<1)
+				hor = 1;
 			min=10*getNumber(date[3])+getNumber(date[4]);
+			if(min >59|| min<1)
+				min = 0;
 			seg=10*getNumber(date[6])+getNumber(date[7]);
+			if(seg >59|| seg<1)
+				seg = 0;
 			setHora(seg, min, hor);
 		}
 		reset_Watchdog();
@@ -105,6 +96,7 @@ static __NO_RETURN void Rtc_setDate (void *arg) {
 	char date[10];
 	uint8_t  dia, mes;
 	uint16_t anio;
+	char dat[25];
 	
 	while(1){
 
@@ -124,7 +116,15 @@ static __NO_RETURN void Rtc_setDate (void *arg) {
 				mes = 1;
 			anio=10*getNumber(date[8])+getNumber(date[9]);
 			setFecha(dia, mes, anio);
+			osDelay(400);
+			if (getAnio() > 9)
+				sprintf(dat,"Son las %d:%d:%d del %d/%d/20%d", getHora(), getMin(), getSeg(), getDia(), getMes(), getAnio());
+			else
+				sprintf(dat,"Son las %d:%d:%d del %d/%d/200%d", getHora(), getMin(), getSeg(), getDia(), getMes(), getAnio());
+			int numwords = (strlen(dat)/4)+((strlen(dat)%4)!=0);
+			Flash_Write_Data(0x08020000, (uint32_t *) dat, numwords);
 		}
+		
 		reset_Watchdog();
 	}
 }
@@ -137,10 +137,8 @@ static __NO_RETURN void Rtc_setDate (void *arg) {
   */
 __NO_RETURN void app_main (void *arg) {
   (void)arg;
-	uint32_t exec1=1U;
-	uint32_t time;
-	
-	/*Inicialización del comonente de red*/
+
+	/*Inicialización del componente de red*/
   netInitialize ();
 	/*Inicializació del RTC*/
 	MX_RTC_Init();
@@ -151,6 +149,8 @@ __NO_RETURN void app_main (void *arg) {
 	/*Se crean los hilos*/
 	TID_Rtc_setTime		= osThreadNew (Rtc_setTime, 		 NULL, NULL);
 	TID_Rtc_setDate		= osThreadNew (Rtc_setDate, 		 NULL, NULL);
+	
+	reset_Watchdog();
 	
   osThreadExit();
 }

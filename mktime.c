@@ -22,14 +22,18 @@ unix_time_in_seconds( uint8_t sec, uint8_t min, uint8_t hrs, uint8_t day, uint8_
 
   //  Add up the seconds from all prev days this year, up until today.
   uint8_t year_index = (IS_LEAP_YEAR( year )) ? 1 : 0;
-  for( uint8_t mo_k = 0; mo_k<(mon); mo_k++ )
+  for( uint16_t mo_k = 0; mo_k<(mon-1); mo_k++ )
   { //  days from previous months this year
     ts += days_per_month[ year_index ][ mo_k ] * SEC_PER_DAY;
   }
   ts += (day-1) * SEC_PER_DAY; // days from this month
-
-  //  Calculate seconds elapsed just today.
-  ts += (hrs-1) * SEC_PER_HOUR;
+	
+	if (mon>9 || mon<3)
+		//  Calculate seconds elapsed just today.
+		ts += (hrs) * SEC_PER_HOUR;
+	else
+		//  Calculate seconds elapsed just today.
+		ts += (hrs-1) * SEC_PER_HOUR;
   ts += min * SEC_PER_MIN;
   ts += sec;
 

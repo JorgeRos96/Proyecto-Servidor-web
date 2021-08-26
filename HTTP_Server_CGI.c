@@ -1,11 +1,11 @@
 /**
   ******************************************************************************
-  * @file    Templates/Src/HTTP_Server.c 
+  * @file    Templates/Src/HTTP_Server_CGI.c 
   * @author  MCD Application Team
-  * @brief   Fichero donde se realiza la gestión de los hilos. En ellos se realiza
-	*					 la obtención de la hora del servidor SNTP. Esto se realiza con un 
-	*					 Timer que obtiene la hora cada 15s. Tambien se establece la hora en 
-	*					 el RTC cuando se establece en la página web.
+  * @brief   Fichero donde se realizan las funciones que tratan los datos que se
+	*					 envían desde la página web a traves de solicitudes GET y POST.
+	*					 Además se realiza la gestión de los comandos codificados en los ficheros
+	*					 CGI cuando se realizan las peticiones desde la página web.
 	*
   * @note    modified by ARM
   *          The modifications allow to use this file as User Code Template
@@ -102,8 +102,7 @@ void netCGI_ProcessQuery (const char *qstr) {
   } while (qstr);
 }
 
-// Process data received by POST request.
-// 
+
 /**
   * @brief Función que procesa la consulta recibida por la solicitud POST.
 	*	 			 Type code: - 0 = www-url-encoded form data.
@@ -132,17 +131,17 @@ void netCGI_ProcessData (uint8_t code, const char *data, uint32_t len) {
   do {
     // Parse all parameters
     data = netCGI_GetEnvVar (data, var, sizeof (var));
-    if (var[0] != 0) {
-      // First character is non-null, string exists
-      if ((strncmp (var, "pw0=", 4) == 0) ||
-               (strncmp (var, "pw2=", 4) == 0)) {
-        // Change password, retyped password
+    // First character is non-null, string exists
+		if (var[0] != 0) {
+			// Change password, retyped password			
+      if ((strncmp (var, "pw0=", 4) == 0) || (strncmp (var, "pw2=", 4) == 0)) {
+				/*Si se encuentra activo el login para acceder*/
         if (netHTTPs_LoginActive()) {
           if (passw[0] == 1) {
             strcpy (passw, var+4);
           }
-          else if (strcmp (passw, var+4) == 0) {
-            // Both strings are equal, change the password
+					// Both strings are equal, change the password
+          else if (strcmp (passw, var+4) == 0) {          
             netHTTPs_SetPassword (passw);
           }
         }
@@ -161,7 +160,6 @@ void netCGI_ProcessData (uint8_t code, const char *data, uint32_t len) {
   } while (data);
 }
 
-// Generate dynamic web data from a script line.
 /**
   * @brief Función que procesa la información del script CGI cuyas lineas comienzan por el comando c. Dentro de la variable
 	*				 env que se recibe por parámetro se encuentra la misma cadena que se define en el script y por el que se identifica
@@ -180,12 +178,10 @@ uint32_t netCGI_Script (const char *env, char *buf, uint32_t buflen, uint32_t *p
   NET_ADDR r_client;
   const char *lang;
   uint32_t len = 0U;
-  uint8_t id;
   static uint64_t adv;
   netIF_Option opt = netIF_OptionMAC_Address;
   int16_t      typ = 0;
-	char time[8];
-	char date[10];
+
 	
   switch (env[0]) {
     // Analyze a 'c' script line starting position 2
@@ -239,7 +235,7 @@ uint32_t netCGI_Script (const char *env, char *buf, uint32_t buflen, uint32_t *p
       netIF_GetOption (NET_IF_CLASS_ETH, opt, ip_addr, sizeof(ip_addr));
       netIP_ntoa (typ, ip_addr, ip_string, sizeof(ip_string));
       len = (uint32_t)sprintf (buf, &env[5], ip_string);
-      break;
+    break;
 
     case 'c':
       // TCP status from 'tcp.cgi'
@@ -280,7 +276,7 @@ uint32_t netCGI_Script (const char *env, char *buf, uint32_t buflen, uint32_t *p
       }
       /* More sockets to go, set a repeat flag */
       len |= (1u << 31);
-      break;
+    break;
 
     case 'd':
       // System password from 'system.cgi'
@@ -292,7 +288,7 @@ uint32_t netCGI_Script (const char *env, char *buf, uint32_t buflen, uint32_t *p
           len = (uint32_t)sprintf (buf, &env[4], netHTTPs_GetPassword());
           break;
       }
-      break;
+    break;
 
     case 'e':
       // Browser Language from 'language.cgi'
@@ -313,39 +309,38 @@ uint32_t netCGI_Script (const char *env, char *buf, uint32_t buflen, uint32_t *p
         lang = "Unknown";
       }
       len = (uint32_t)sprintf (buf, &env[2], lang, netHTTPs_GetLanguage());
-      break;
+    break;
   
 		case 'z':
       switch (env[2]) {
 				/*Se escribe en el buffer de salida el número total de segundos para actualizar el EPOCH Time*/
         case '1':
-         adv=getTotalSeconds();
+					adv=getTotalSeconds();
 					len = (uint64_t)sprintf (buf, &env[4], adv);
-          break;
+        break;
       }
-      break;
+    break;
 		case 'p':
       switch (env[2]) {
 				/*Se escribe en el buffer de salida el número total de segundos*/
         case '1':
-         adv=getTotalSeconds(); 
+					adv=getTotalSeconds(); 
 					len = (uint64_t)sprintf (buf, &env[4], adv);
-          break;
+        break;
       }
-			break;
+		break;
 		case 'n':
       switch (env[2]) {
 				/*Escribe en el buffer de salida la hora*/
         case '1':
 					len = (uint32_t)sprintf (buf, &env[4], time_text[0]);
-          break;
+        break;
 				/*Escribe en el buffer de salida la fecha*/
 				case '2':
 					len = (uint32_t)sprintf (buf, &env[4], time_text[1]);
-          break;
-
+        break;
       }
-      break;
+    break;
   }
   return (len);
 }
